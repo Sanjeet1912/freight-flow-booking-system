@@ -1,5 +1,6 @@
 
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useToast } from '@/hooks/use-toast';
 import { trips } from "@/data/mockData";
 import { Button } from "@/components/ui/button";
@@ -13,12 +14,45 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, Download, FileUp, Info } from "lucide-react";
+// Using allowed lucide-react icons only
+import { Search, Download, FileUp, Info, FileText } from "lucide-react";
+
+const LRSoftCopyModal = ({
+  show,
+  lrNumber,
+  onClose,
+}: {
+  show: boolean;
+  lrNumber: string;
+  onClose: () => void;
+}) => {
+  if (!show) return null;
+  return (
+    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40">
+      <div className="bg-white rounded-lg shadow-lg max-w-lg w-full p-6">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-semibold">LR Soft Copy: {lrNumber}</h2>
+          <Button variant="outline" size="sm" onClick={onClose}>
+            Close
+          </Button>
+        </div>
+        {/* Placeholder for LR Soft Copy Preview */}
+        <div className="flex items-center justify-center h-56 bg-muted rounded border text-muted-foreground">
+          LR Soft Copy Preview for <span className="font-mono ml-1">{lrNumber}</span>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const TripsList = () => {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredTrips, setFilteredTrips] = useState(trips);
+  const [showLrModal, setShowLrModal] = useState(false);
+  const [selectedLrNumber, setSelectedLrNumber] = useState("");
+
+  const navigate = useNavigate();
 
   const handleSearch = () => {
     if (!searchTerm.trim()) {
@@ -29,7 +63,9 @@ const TripsList = () => {
     const filtered = trips.filter(
       (trip) =>
         trip.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        trip.lrNumbers.some(lr => lr.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        trip.lrNumbers.some((lr) =>
+          lr.toLowerCase().includes(searchTerm.toLowerCase())
+        ) ||
         trip.clientName.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -50,6 +86,15 @@ const TripsList = () => {
     });
   };
 
+  const handleOrderIdClick = (tripId: string) => {
+    navigate(`/trips/${tripId}`);
+  };
+
+  const handleLrNumberClick = (lrNumber: string) => {
+    setSelectedLrNumber(lrNumber);
+    setShowLrModal(true);
+  };
+
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
       case "Booked":
@@ -57,7 +102,6 @@ const TripsList = () => {
       case "In Transit":
         return "badge-amber";
       case "Delivered":
-        return "badge-green";
       case "Completed":
         return "badge-green";
       default:
@@ -82,6 +126,12 @@ const TripsList = () => {
 
   return (
     <div className="container mx-auto">
+      {/* LR Soft Copy Modal */}
+      <LRSoftCopyModal
+        show={showLrModal}
+        lrNumber={selectedLrNumber}
+        onClose={() => setShowLrModal(false)}
+      />
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>FTL Trips</CardTitle>
@@ -102,11 +152,7 @@ const TripsList = () => {
                 <Search size={18} />
               </Button>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleExportToExcel}
-            >
+            <Button variant="outline" size="sm" onClick={handleExportToExcel}>
               <Download size={18} className="mr-2" /> Export
             </Button>
           </div>
@@ -117,18 +163,36 @@ const TripsList = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="whitespace-nowrap">Order ID</TableHead>
-                    <TableHead className="whitespace-nowrap">LR Number</TableHead>
+                    <TableHead className="whitespace-nowrap">
+                      Order ID
+                    </TableHead>
+                    <TableHead className="whitespace-nowrap">
+                      LR Number
+                    </TableHead>
                     <TableHead className="whitespace-nowrap">Client</TableHead>
-                    <TableHead className="whitespace-nowrap">Client Freight (₹)</TableHead>
-                    <TableHead className="whitespace-nowrap">Supplier Freight (₹)</TableHead>
-                    <TableHead className="whitespace-nowrap">Margin (₹)</TableHead>
-                    <TableHead className="whitespace-nowrap">Trip Date</TableHead>
-                    <TableHead className="whitespace-nowrap">Source - Destination</TableHead>
+                    <TableHead className="whitespace-nowrap">
+                      Client Freight (₹)
+                    </TableHead>
+                    <TableHead className="whitespace-nowrap">
+                      Supplier Freight (₹)
+                    </TableHead>
+                    <TableHead className="whitespace-nowrap">
+                      Margin (₹)
+                    </TableHead>
+                    <TableHead className="whitespace-nowrap">
+                      Trip Date
+                    </TableHead>
+                    <TableHead className="whitespace-nowrap">
+                      Source - Destination
+                    </TableHead>
                     <TableHead className="whitespace-nowrap">Vehicle</TableHead>
                     <TableHead className="whitespace-nowrap">Status</TableHead>
-                    <TableHead className="whitespace-nowrap">Advance Status</TableHead>
-                    <TableHead className="whitespace-nowrap">Balance Status</TableHead>
+                    <TableHead className="whitespace-nowrap">
+                      Advance Status
+                    </TableHead>
+                    <TableHead className="whitespace-nowrap">
+                      Balance Status
+                    </TableHead>
                     <TableHead className="whitespace-nowrap">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -137,19 +201,40 @@ const TripsList = () => {
                     filteredTrips.map((trip) => (
                       <TableRow key={trip.id}>
                         <TableCell className="font-medium">
-                          <a href="#" className="text-freight-600 hover:underline">
+                          {/* Order ID hyperlink */}
+                          <button
+                            className="text-freight-600 hover:underline flex items-center gap-1"
+                            title="View Order Details"
+                            onClick={() => handleOrderIdClick(trip.id)}
+                          >
                             {trip.orderNumber}
-                          </a>
+                            <FileText size={16} />
+                          </button>
                         </TableCell>
                         <TableCell>
-                          <a href="#" className="text-freight-600 hover:underline">
+                          {/* LR Number hyperlink */}
+                          <button
+                            className="text-freight-600 hover:underline flex items-center gap-1"
+                            onClick={() => handleLrNumberClick(trip.lrNumbers[0])}
+                            title="View LR Soft Copy"
+                          >
                             {trip.lrNumbers[0]}
-                          </a>
+                            <FileText size={16} />
+                          </button>
                         </TableCell>
                         <TableCell>{trip.clientName}</TableCell>
-                        <TableCell>₹{trip.clientFreight.toLocaleString()}</TableCell>
-                        <TableCell>₹{trip.supplierFreight.toLocaleString()}</TableCell>
-                        <TableCell>₹{(trip.clientFreight - trip.supplierFreight).toLocaleString()}</TableCell>
+                        <TableCell>
+                          ₹{trip.clientFreight.toLocaleString()}
+                        </TableCell>
+                        <TableCell>
+                          ₹{trip.supplierFreight.toLocaleString()}
+                        </TableCell>
+                        <TableCell>
+                          ₹
+                          {(
+                            trip.clientFreight - trip.supplierFreight
+                          ).toLocaleString()}
+                        </TableCell>
                         <TableCell>{trip.pickupDate}</TableCell>
                         <TableCell>{`${trip.clientCity} - ${trip.destinationCity}`}</TableCell>
                         <TableCell>{trip.vehicleNumber}</TableCell>
@@ -159,12 +244,20 @@ const TripsList = () => {
                           </span>
                         </TableCell>
                         <TableCell>
-                          <span className={getPaymentStatusBadgeClass(trip.advancePaymentStatus)}>
+                          <span
+                            className={getPaymentStatusBadgeClass(
+                              trip.advancePaymentStatus
+                            )}
+                          >
                             {trip.advancePaymentStatus}
                           </span>
                         </TableCell>
                         <TableCell>
-                          <span className={getPaymentStatusBadgeClass(trip.balancePaymentStatus)}>
+                          <span
+                            className={getPaymentStatusBadgeClass(
+                              trip.balancePaymentStatus
+                            )}
+                          >
                             {trip.balancePaymentStatus}
                           </span>
                         </TableCell>
@@ -193,7 +286,10 @@ const TripsList = () => {
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={13} className="text-center py-8 text-gray-500">
+                      <TableCell
+                        colSpan={13}
+                        className="text-center py-8 text-gray-500"
+                      >
                         No trips found matching your search criteria.
                       </TableCell>
                     </TableRow>

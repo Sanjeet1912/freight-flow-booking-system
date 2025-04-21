@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -14,11 +13,11 @@ import ClientList from "./components/client/ClientList";
 import SupplierList from "./components/supplier/SupplierList";
 import VehicleList from "./components/vehicle/VehicleList";
 import MainLayout from "./components/layout/MainLayout";
+import TripDetailsPage from "@/components/trips/TripDetailsPage";
 
-// Create a client
 const queryClient = new QueryClient();
 
-const App = () => {
+function App() {
   return (
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
@@ -58,6 +57,7 @@ const App = () => {
                   <VehicleList />
                 </MainLayout>
               } />
+              <Route path="/trips/:tripId" element={<TripDetailsPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
@@ -65,6 +65,6 @@ const App = () => {
       </QueryClientProvider>
     </React.StrictMode>
   );
-};
+}
 
 export default App;
