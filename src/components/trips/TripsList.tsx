@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from '@/hooks/use-toast';
@@ -16,34 +15,8 @@ import {
 } from "@/components/ui/table";
 // Using allowed lucide-react icons only
 import { Search, Download, FileUp, Info, FileText } from "lucide-react";
-
-const LRSoftCopyModal = ({
-  show,
-  lrNumber,
-  onClose,
-}: {
-  show: boolean;
-  lrNumber: string;
-  onClose: () => void;
-}) => {
-  if (!show) return null;
-  return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40">
-      <div className="bg-white rounded-lg shadow-lg max-w-lg w-full p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold">LR Soft Copy: {lrNumber}</h2>
-          <Button variant="outline" size="sm" onClick={onClose}>
-            Close
-          </Button>
-        </div>
-        {/* Placeholder for LR Soft Copy Preview */}
-        <div className="flex items-center justify-center h-56 bg-muted rounded border text-muted-foreground">
-          LR Soft Copy Preview for <span className="font-mono ml-1">{lrNumber}</span>
-        </div>
-      </div>
-    </div>
-  );
-};
+import TripRow from "./TripRow";
+import LRSoftCopyModal from "./LRSoftCopyModal";
 
 const TripsList = () => {
   const { toast } = useToast();
@@ -199,90 +172,15 @@ const TripsList = () => {
                 <TableBody>
                   {filteredTrips.length > 0 ? (
                     filteredTrips.map((trip) => (
-                      <TableRow key={trip.id}>
-                        <TableCell className="font-medium">
-                          {/* Order ID hyperlink */}
-                          <button
-                            className="text-freight-600 hover:underline flex items-center gap-1"
-                            title="View Order Details"
-                            onClick={() => handleOrderIdClick(trip.id)}
-                          >
-                            {trip.orderNumber}
-                            <FileText size={16} />
-                          </button>
-                        </TableCell>
-                        <TableCell>
-                          {/* LR Number hyperlink */}
-                          <button
-                            className="text-freight-600 hover:underline flex items-center gap-1"
-                            onClick={() => handleLrNumberClick(trip.lrNumbers[0])}
-                            title="View LR Soft Copy"
-                          >
-                            {trip.lrNumbers[0]}
-                            <FileText size={16} />
-                          </button>
-                        </TableCell>
-                        <TableCell>{trip.clientName}</TableCell>
-                        <TableCell>
-                          ₹{trip.clientFreight.toLocaleString()}
-                        </TableCell>
-                        <TableCell>
-                          ₹{trip.supplierFreight.toLocaleString()}
-                        </TableCell>
-                        <TableCell>
-                          ₹
-                          {(
-                            trip.clientFreight - trip.supplierFreight
-                          ).toLocaleString()}
-                        </TableCell>
-                        <TableCell>{trip.pickupDate}</TableCell>
-                        <TableCell>{`${trip.clientCity} - ${trip.destinationCity}`}</TableCell>
-                        <TableCell>{trip.vehicleNumber}</TableCell>
-                        <TableCell>
-                          <span className={getStatusBadgeClass(trip.status)}>
-                            {trip.status}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <span
-                            className={getPaymentStatusBadgeClass(
-                              trip.advancePaymentStatus
-                            )}
-                          >
-                            {trip.advancePaymentStatus}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <span
-                            className={getPaymentStatusBadgeClass(
-                              trip.balancePaymentStatus
-                            )}
-                          >
-                            {trip.balancePaymentStatus}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex space-x-1">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              title="View Details"
-                            >
-                              <Info size={16} />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              title="Upload POD"
-                              onClick={() => handleUploadPOD(trip.id)}
-                            >
-                              <FileUp size={16} />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
+                      <TripRow
+                        key={trip.id}
+                        trip={trip}
+                        onOrderIdClick={handleOrderIdClick}
+                        onLrNumberClick={handleLrNumberClick}
+                        onUploadPOD={handleUploadPOD}
+                        getStatusBadgeClass={getStatusBadgeClass}
+                        getPaymentStatusBadgeClass={getPaymentStatusBadgeClass}
+                      />
                     ))
                   ) : (
                     <TableRow>
