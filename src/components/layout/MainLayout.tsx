@@ -16,7 +16,7 @@ interface MainLayoutProps {
   title?: string;
 }
 
-const MainLayout = ({ children, title = "Cargo धाम" }: MainLayoutProps) => {
+const MainLayout = ({ children, title = "CargoDham" }: MainLayoutProps) => {
   const menuItems = [
     { icon: LayoutDashboard, title: "Dashboard", to: "/" },
     { icon: Truck, title: "FTL Booking", to: "/booking" },
@@ -33,7 +33,7 @@ const MainLayout = ({ children, title = "Cargo धाम" }: MainLayoutProps) =>
         <div className="max-w-[1920px] mx-auto">
           <div className="flex items-center justify-between px-4 py-2">
             <div className="flex items-center gap-4">
-              <h2 className="text-xl font-semibold text-gray-900">Cargo धाम</h2>
+              <h2 className="text-xl font-semibold text-gray-900">CargoDham</h2>
               <div className="hidden md:flex items-center gap-1">
                 {menuItems.map((item) => (
                   <NavLink
