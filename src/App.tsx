@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -14,6 +15,7 @@ import SupplierList from "./components/supplier/SupplierList";
 import VehicleList from "./components/vehicle/VehicleList";
 import MainLayout from "./components/layout/MainLayout";
 import TripDetailsPage from "@/components/trips/TripDetailsPage";
+import SupplierApp from "./pages/SupplierApp";
 
 const queryClient = new QueryClient();
 
@@ -58,6 +60,7 @@ function App() {
                 </MainLayout>
               } />
               <Route path="/trips/:tripId" element={<TripDetailsPage />} />
+              <Route path="/supplier-app" element={<SupplierApp />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
