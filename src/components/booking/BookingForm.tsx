@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -48,9 +49,6 @@ interface Material {
 
 const BookingForm = () => {
   const { toast } = useToast();
-
-  const [activeTab, setActiveTab] = useState<"booking" | "vehicle" | "documentation">("booking");
-
   const [selectedClient, setSelectedClient] = useState("");
   const [selectedClientData, setSelectedClientData] = useState<any>(null);
   const [selectedSupplier, setSelectedSupplier] = useState("");
@@ -83,6 +81,7 @@ const BookingForm = () => {
   const [lrNumbers, setLrNumbers] = useState<string[]>([""]);
   const [gsmTracking, setGsmTracking] = useState(true);
 
+  // Handle client selection
   useEffect(() => {
     if (selectedClient) {
       const client = clients.find(client => client.id === selectedClient);
@@ -94,6 +93,7 @@ const BookingForm = () => {
     }
   }, [selectedClient]);
 
+  // Handle vehicle selection
   useEffect(() => {
     if (selectedVehicle) {
       const vehicle = vehicles.find(vehicle => vehicle.id === selectedVehicle);
@@ -115,7 +115,9 @@ const BookingForm = () => {
     }
   }, [selectedVehicle]);
 
+  // Calculate freight amounts
   useEffect(() => {
+    // Sum up all material costs to get client freight
     const totalMaterialCost = materials.reduce((total, material) => {
       return total + (material.weight * material.ratePerMT);
     }, 0);
@@ -167,6 +169,7 @@ const BookingForm = () => {
   };
 
   const handleConfirmBooking = () => {
+    // Validate required fields
     if (!selectedClient || !selectedSupplier || !vehicleNumber || !pickupDate || 
         !destinationAddress || !destinationCity || !clientFreight || !supplierFreight) {
       toast({
@@ -177,29 +180,23 @@ const BookingForm = () => {
       return;
     }
 
+    // Create booking logic would go here
     toast({
       title: "Booking Confirmed",
       description: `Booking has been successfully created with Order ID: FTL-${Date.now()}`,
     });
   };
 
-  const handleContinueBooking = () => {
-    if (activeTab === "booking") {
-      setActiveTab("vehicle");
-    } else if (activeTab === "vehicle") {
-      setActiveTab("documentation");
-    }
-  };
-
   return (
     <div className="container mx-auto">
-      <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as typeof activeTab)} className="w-full">
+      <Tabs defaultValue="booking" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="booking">Basic Info</TabsTrigger>
           <TabsTrigger value="vehicle">Vehicle & Material</TabsTrigger>
           <TabsTrigger value="documentation">Documentation & Tracking</TabsTrigger>
         </TabsList>
 
+        {/* Basic Information Tab */}
         <TabsContent value="booking" className="space-y-4 mt-4">
           <Card>
             <CardHeader>
@@ -346,6 +343,7 @@ const BookingForm = () => {
           </Card>
         </TabsContent>
 
+        {/* Vehicle & Material Tab */}
         <TabsContent value="vehicle" className="space-y-4 mt-4">
           <Card>
             <CardHeader>
@@ -626,6 +624,7 @@ const BookingForm = () => {
           </Card>
         </TabsContent>
 
+        {/* Documentation Tab */}
         <TabsContent value="documentation" className="space-y-4 mt-4">
           <Card>
             <CardHeader>
@@ -634,6 +633,7 @@ const BookingForm = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
+                {/* LR Number Section */}
                 <div className="space-y-2">
                   <h3 className="text-sm font-semibold">LR Numbers*</h3>
                   {lrNumbers.map((lrNumber, index) => (
@@ -671,6 +671,7 @@ const BookingForm = () => {
 
                 <Separator />
 
+                {/* Invoice Upload Section */}
                 <div className="space-y-2">
                   <h3 className="text-sm font-semibold">Invoice of Material*</h3>
                   <div className="flex items-center space-x-2">
@@ -694,6 +695,7 @@ const BookingForm = () => {
 
                 <Separator />
 
+                {/* E-way Bill Upload Section */}
                 <div className="space-y-2">
                   <h3 className="text-sm font-semibold">E-way Bills*</h3>
                   <div className="flex items-center space-x-2">
@@ -774,25 +776,14 @@ const BookingForm = () => {
       </Tabs>
 
       <div className="mt-6 flex justify-end">
-        {activeTab === "documentation" ? (
-          <Button
-            variant="default"
-            size="lg"
-            onClick={handleConfirmBooking}
-            className="bg-freight-600 hover:bg-freight-700 text-white px-8"
-          >
-            <Save size={18} className="mr-2" /> Confirm Booking
-          </Button>
-        ) : (
-          <Button
-            variant="default"
-            size="lg"
-            onClick={handleContinueBooking}
-            className="bg-freight-600 hover:bg-freight-700 text-white px-8"
-          >
-            <Save size={18} className="mr-2" /> Continue Booking
-          </Button>
-        )}
+        <Button
+          variant="default"
+          size="lg"
+          onClick={handleConfirmBooking}
+          className="bg-freight-600 hover:bg-freight-700 text-white px-8"
+        >
+          <Save size={18} className="mr-2" /> Confirm Booking
+        </Button>
       </div>
     </div>
   );
